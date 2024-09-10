@@ -107,7 +107,6 @@ def forecast_and_plot(symbol):
     plt.tight_layout()
     plt.show()
 
-
 # Função para obter o símbolo da ação e executar a previsão
 def on_button_click():
     symbol = symbol_entry.get()
