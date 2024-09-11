@@ -69,26 +69,49 @@ def predict_data(data):
     return (forecast, performance_predict)
 
 def plot_graph(symbol, data, forecast, performance_predict):
-    plt.figure(figsize=(14, 8))
+    plt.figure(figsize=(7, 4))
+    
+    # Definição de cores suaves para o gráfico
+    real_color = "#4CAF50"     # Verde suave para os valores reais
+    forecast_color = "#FF5722" # Vermelho suave para as previsões
+    predict_color = "#2196F3"  # Azul suave para a performance do modelo
+
+    # Definir os passos de previsão e as datas futuras
     forecast_steps = len(forecast)
     forecast_dates = pd.date_range(start=data.index[-1], periods=forecast_steps, freq='B')
+
+    # Gráfico dos valores reais (dados históricos)
+    plt.plot(data.index, data, label='Valores Reais', color=real_color, linewidth=2)
+
+    # Gráfico das previsões futuras (dados previstos)
+    plt.plot(forecast_dates, forecast, label='Previsão', color=forecast_color, linestyle='--', linewidth=2)
+
+    # Gráfico das predições (modelo ajustado aos dados históricos)
+    plt.plot(performance_predict.index, performance_predict, label='Performance do Modelo', color=predict_color, linestyle='--', linewidth=2)
+
+    # Configurações minimalistas
+    plt.title(f'Previsão de Preços de Ações ({symbol}) com ARIMA', fontsize=16, color="#333333", pad=20)  # Título com espaçamento e cor suave
+    plt.xlabel('Data', fontsize=12, color="#555555")  # Rótulo do eixo X
+    plt.ylabel('Preço de Fechamento (R$)', fontsize=12, color="#555555")  # Rótulo do eixo Y
+    plt.legend(loc='upper left', fontsize=10, frameon=False)  # Remove a caixa em volta da legenda
+    plt.grid(False)  # Remover a grade para manter o estilo minimalista
+    plt.xticks(rotation=45, color="#666666")  # Ajuste da cor e rotação dos rótulos do eixo X
+    plt.yticks(color="#666666")  # Cor suave para os rótulos do eixo Y
     
-    plt.plot(data.index, data, label='Valores Reais', color='blue') # Gráfico dos valores reais (dados históricos)
-    plt.plot(forecast_dates, forecast, label='Previsão', color='red', linestyle='--') # Gráfico das previsões futuras (dados previstos)
-    plt.plot(performance_predict.index, performance_predict, label='Performace do modelo', color='green', linestyle='--')     # Gráfico das predições (modelo ajustado aos dados históricos)
-    
-    # Configurações do gráfico
-    plt.title(f'Previsão de Preços de Ações ({symbol}) com ARIMA', fontsize=18)
-    plt.xlabel('Data', fontsize=14)
-    plt.ylabel('Preço de Fechamento (R$)', fontsize=14)
-    plt.legend(loc='upper left', fontsize=12)
-    plt.grid(True)
-    plt.xticks(rotation=45)
+    # Remove os contornos do gráfico
+    ax = plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color("#DDDDDD")
+    ax.spines['bottom'].set_color("#DDDDDD")
+
+    # Estilo minimalista nos limites
     plt.tight_layout()
     plt.show()
 
 # Obtém o símbolo da ação e executar a previsão
 def on_button_click():
+    print("Botão pressionado!")
     symbol = symbol_entry.get()
     if symbol:
         data = get_stock_data(symbol)
@@ -98,17 +121,60 @@ def on_button_click():
     else:
         messagebox.showwarning("Aviso", "Por favor, insira um símbolo de ação.")
 
-# Interface gráfica com Tkinter
-root = tk.Tk()
-root.title("Previsão de Preços de Ações")
+# Cria a janela principal
+janela = tk.Tk()
+janela.geometry("500x400")
+janela.title("Previsão de Ações")
+janela.configure(bg="#f0f0f0")  # Fundo suave
+
+# Fonte personalizada para título e outros widgets
+title_font = ("Arial", 20, "bold")  # Fonte padrão Arial
+label_font = ("Arial", 12)
+button_font = ("Arial", 10)
+
+# Título
+title_label = tk.Label(
+    janela, 
+    text="Previsão de Preços de Ações", 
+    font=title_font, 
+    bg="#f0f0f0",  # Cor de fundo do label
+    fg="#333333"   # Cor do texto (cinza escuro)
+)
+title_label.pack(pady=20)
 
 # Label e campo de entrada para o símbolo da ação
-tk.Label(root, text="Símbolo da Ação:").pack(pady=10)
-symbol_entry = tk.Entry(root)
+symbol_label = tk.Label(
+    janela, 
+    text="Digite o símbolo da ação:", 
+    font=label_font, 
+    bg="#f0f0f0", 
+    fg="#555555"
+)
+symbol_label.pack(pady=10)
+
+symbol_entry = tk.Entry(janela, font=("Arial", 12), width=20, bd=2, relief="flat", justify="center")
 symbol_entry.pack(pady=5)
 
 # Botão para iniciar a previsão
-tk.Button(root, text="Prever e Mostrar Gráfico", command=on_button_click).pack(pady=20)
+prever_button = tk.Button(
+    janela, 
+    text="Prever e Mostrar Gráfico", 
+    command=on_button_click, 
+    font=button_font, 
+    bg="#4CAF50",  # Cor de fundo do botão (verde suave)
+    fg="white",    # Cor do texto do botão (branco)
+    activebackground="#45a049",  # Cor de fundo quando pressionado
+    relief="flat", 
+    padx=10, 
+    pady=5
+)
+prever_button.pack(pady=20)
+
+# Centraliza todos os elementos
+title_label.pack(pady=20, anchor="center")
+symbol_label.pack(pady=10, anchor="center")
+symbol_entry.pack(pady=5, anchor="center")
+prever_button.pack(pady=20, anchor="center")
 
 # Inicia o loop da interface gráfica
-root.mainloop()
+janela.mainloop()
