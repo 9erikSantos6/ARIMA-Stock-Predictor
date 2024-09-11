@@ -1,5 +1,5 @@
 # Igonred files
-.financeai_tmp_cache
+./data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
