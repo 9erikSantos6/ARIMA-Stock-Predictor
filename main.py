@@ -56,7 +56,7 @@ def autofit_model_arima(data):
 
 # Realiza a predição com base nos dados
 def predict_data(data):
-    close_prices = data  # Aqui 'data' já é a série de preços de fechamento
+    close_prices = data  # Pega os dados de fechamento
     model = autofit_model_arima(close_prices)  # Autoconfigura o modelo ARIMA
     forecast_steps = 12 * 2  # Aproximadamente 2 anos de previsões
     forecast = model.forecast(steps=forecast_steps)  # Faz a previsão
