@@ -14,32 +14,30 @@ import tkinter as tk
 from tkinter import messagebox
 
 # Cache para evitar repetidas requisições de dados
-cache_dir = '.fincanceai_tmp_cache'
+cache_dir = '.financeai_tmp_cache'
 cache = Cache(directory=cache_dir, size_limit=int(1024 * 1e6))
 
 # Função para buscar dados das ações com cache
 @cache.memoize(expire=3600)
 def get_stock_data(symbol):
+    print('Data: ', symbol)
     try:
-        data = yf.download(symbol) # Baixa os dados históricos da ação usando o Yahoo Finance
-        if data.empty: # Validação de dados
+        data = yf.download(symbol)  # Baixa os dados históricos da ação usando o Yahoo Finance
+        if data.empty:  # Validação de dados
             raise ValueError(f"No data found for symbol: {symbol}")
-        return data
+        data = preprocess_data(data)
+        return data  # Retorna apenas os preços de fechamento já processados
     except Exception as error:
         print(f"Error fetching data for {symbol}: {error}")
         return None
 
 # Preprocessa e faz o tratamento os dados
 def preprocess_data(data):
-    try:
-        close_prices = data['Close'].dropna() # Pega os preços de fechamento e remove NaNs
-        close_prices.index = pd.to_datetime(close_prices.index) # Converte o índice para datetime e ajusta a frequência para dias úteis
-        close_prices = close_prices.asfreq('B')  # Define a frequência para dias úteis (B = business days)
-        close_prices = close_prices.ffill()  # Preenche dados faltantes (forward fill)
-        return close_prices
-    except Exception as error:
-        print(f'ERRO AO PROCESSAR DADOS:\n\n{error}')
-
+    close_prices = data['Close'].dropna() # Pega os preços de fechamento e remove NaNs
+    close_prices.index = pd.to_datetime(close_prices.index) # Converte o índice para datetime e ajusta a frequência para dias úteis
+    close_prices = close_prices.asfreq('B')  # Define a frequência para dias úteis (B = business days)
+    close_prices = close_prices.ffill()  # Preenche dados faltantes (forward fill)
+    return close_prices
 
 # Autoconfigura o modelo ARIMA
 @cache.memoize(expire=3600)
@@ -58,26 +56,26 @@ def autofit_model_arima(data):
 
 # Realiza a predição com base nos dados
 def predict_data(data):
-    close_prices = preprocess_data(data) # Trata os dados
-    model = autofit_model_arima(close_prices)  # Autoconfigira o modelo ARIMA
-    forecast_steps = 12 * 2  # Aproximadamente 2 anos de previsões: PRECISA DE ALTERAÇÃO
+    close_prices = data  # Aqui 'data' já é a série de preços de fechamento
+    model = autofit_model_arima(close_prices)  # Autoconfigura o modelo ARIMA
+    forecast_steps = 12 * 2  # Aproximadamente 2 anos de previsões
     forecast = model.forecast(steps=forecast_steps)  # Faz a previsão
-    performance_predict = model.predict(start=0, end=len(close_prices)-1)  # Predições de performace
-    
+    performance_predict = model.predict(start=0, end=len(close_prices)-1)  # Predições de performance
+
     # Exibindo previsões
     print(f"Previsões para os próximos {forecast_steps} períodos:")
     print(forecast)
 
     return (forecast, performance_predict)
 
-def plot_graph(symbol, data, forecast, predict):
+def plot_graph(symbol, data, forecast, performance_predict):
     plt.figure(figsize=(14, 8))
-    forecast_steps = 12 * 2  # REDUNCANCIA, PRECISA DE ALTERAÇÃO
+    forecast_steps = len(forecast)
     forecast_dates = pd.date_range(start=data.index[-1], periods=forecast_steps, freq='B')
     
     plt.plot(data.index, data, label='Valores Reais', color='blue') # Gráfico dos valores reais (dados históricos)
     plt.plot(forecast_dates, forecast, label='Previsão', color='red', linestyle='--') # Gráfico das previsões futuras (dados previstos)
-    plt.plot(predict.index, predict, label='Performace do modelo', color='green', linestyle='--')     # Gráfico das predições (modelo ajustado aos dados históricos)
+    plt.plot(performance_predict.index, performance_predict, label='Performace do modelo', color='green', linestyle='--')     # Gráfico das predições (modelo ajustado aos dados históricos)
     
     # Configurações do gráfico
     plt.title(f'Previsão de Preços de Ações ({symbol}) com ARIMA', fontsize=18)
@@ -89,12 +87,13 @@ def plot_graph(symbol, data, forecast, predict):
     plt.tight_layout()
     plt.show()
 
-# Função para obter o símbolo da ação e executar a previsão
+# Obtém o símbolo da ação e executar a previsão
 def on_button_click():
     symbol = symbol_entry.get()
     if symbol:
         data = get_stock_data(symbol)
         forecast, performance_predict = predict_data(data)
+        print(performance_predict)
         plot_graph(symbol, data, forecast, performance_predict)
     else:
         messagebox.showwarning("Aviso", "Por favor, insira um símbolo de ação.")
