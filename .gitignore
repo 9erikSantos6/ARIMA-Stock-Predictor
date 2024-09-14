@@ -1,5 +1,6 @@
 # Igonred files
-data/.stockpredictor_tmp_cache
+.data/stockpredictor_tmp_cache
+project_notes.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

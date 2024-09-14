@@ -4,15 +4,25 @@
 
 ```shell
 
-    sudo apt install virtualenv
+sudo apt install virtualenv
 
-    virtualenv venv 
+virtualenv venv 
 
-    source venv/bin/activate
+source venv/bin/activate
 
-    # Após ativar o ambiente virtual execute:
+# Após ativar o ambiente virtual execute:
 
-    pip install -r requirements.txt
+pip install -r requirements.txt
+
+```
+---
+
+## TO EXECUTE TESTS
+
+```shell
+
+python -m unittest discover -v -s test
+
 
 ```
 

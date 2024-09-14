@@ -4,7 +4,7 @@ import yfinance as yf
 import pmdarima as pm
 from tkinter import messagebox
 import matplotlib.pyplot as plt
-from models.CacheHandler import CacheHandler
+from models.cache_handler import CacheHandler
 from statsmodels.tsa.arima.model import ARIMA
 
 # Instancia o gerenciador de cache
