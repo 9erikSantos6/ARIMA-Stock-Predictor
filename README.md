@@ -66,12 +66,6 @@ If you'd like to contribute to this project, feel free to open a pull request. C
 
 This project is licensed under the GNU General Public License v2.0 (GPL-2.0). See the [LICENSE](LICENSE) file for details.
 
----
-
-By following this `README.md`, users will have a clear understanding of how to use and run your stock price predictor, how the ARIMA model works, and how they can contribute to the project.
-
-
-
 
 
 
