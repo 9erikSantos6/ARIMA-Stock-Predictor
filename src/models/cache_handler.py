@@ -1,26 +1,26 @@
 import os
 from diskcache import Cache
-from typing import Dict, List, Union, Any
+from typing import List, Union, Any
 
 class CacheHandler:
-    """ Uma classe para gerenciar o cache """
+    """ A class to manage the cache """
     def __init__(self) -> None:
         self._cache_dir = os.path.join('../../.cache/', 'stockpredictor')
-        os.makedirs(self._cache_dir, exist_ok=True)  # Criar diretório se não existir
+        os.makedirs(self._cache_dir, exist_ok=True)  # Create directory if it does not exist
         self._cache = Cache(directory=self._cache_dir, size_limit=int(1024 * 1e6))
 
     def insert(self, data: dict) -> None:
-        """Insere um dicionário de dados no cache sem expiração"""
+        """Inserts a data dictionary into the cache without expiration"""
         for k, v in data.items():
             self._cache[k] = v
 
     def insert_tmp(self, data: dict, s: float) -> None:
-        """Insere dados temporários no cache com tempo de expiração"""
+        """Inserts temporary data into the cache with expiration time"""
         for k, v in data.items():
             self._cache.set(k, v, expire=s)
 
     def get(self, keys: Union[str, List[str]]) -> Union[Any, List[Any]]:
-        """Recupera um ou mais valores do cache"""
+        """Retrieves one or more values ​​from the cache"""
         itens = []
 
         if isinstance(keys, list):
@@ -33,11 +33,11 @@ class CacheHandler:
             if item is not None:
                 itens.append(item)
         if len(itens) == 0:
-            return None  # Se não encontrar nenhum item, retorna None
+            return None  # If no item is found, return None
         return itens[0] if len(itens) == 1 else itens
 
     def delete(self, key: Union[str, List[str]]) -> None:
-        """Deleta uma ou mais chaves do cache"""
+        """Delete one or more keys from the cache"""
         if isinstance(key, list):
             keys = key
         else:
@@ -48,17 +48,13 @@ class CacheHandler:
                 self._cache.delete(k)
 
     def memoize(self, expire: float) -> None:
-        """Memoize (cache) de função com expiração"""
+        """Function memoize (cache) with expiration"""
         return self._cache.memoize(expire=expire)
 
     def clear(self) -> None:
-        """Limpa o cache completamente"""
+        """Clears the cache completely"""
         self._cache.clear()
 
     def close(self) -> None:
-        """Fecha o cache corretamente"""
+        """Closes the cache correctly"""
         self._cache.close()
-
-# Exemplo de uso:
-# cache_handler = CacheHandler()
-# cache_handler.insert({'key_model': (2, 3, 4)})

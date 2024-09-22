@@ -1,6 +1,6 @@
-from models.predictor import Predictor
-from views.data_chart import DataChart
-from views.window import Window
+from ..models.predictor import Predictor
+from ..views.data_chart import DataChart
+from ..views.window import Window
 
 class PredictorController:
     def __init__(self) -> None:
@@ -9,7 +9,7 @@ class PredictorController:
         self.data_chart = DataChart()
 
     def create_main_window(self) -> Window:
-        # Criando os widgets 
+        # Creating widgets 
         self.main_window.create_label('Previsão de Preços de Ações', ('Arial', 20, 'bold'))
         self.main_window.create_label('Digite o símbolo da ação:')
         self.main_window.create_entry()
@@ -17,7 +17,7 @@ class PredictorController:
         return self.main_window
 
     def _on_button_click(self) -> None:
-        symbol = self.main_window.get_symbol()
+        symbol = self.main_window.get_entry_data()
         if symbol:
             close_prices = self.predictor.download_stock_closing_data(symbol=symbol)
             forecast_prices = self.predictor.automake_forecast(data=close_prices)

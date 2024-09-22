@@ -10,7 +10,7 @@ from .cache_handler import CacheHandler
 
 
 class Predictor:
-    """ Uma classe para predizer os futuros valores de fechamto de uma ação com ARIMA. """
+    """ A class to predict future closure values ​​of an action with ARIMA. """
     def __init__(self) -> None:
         self._cache = CacheHandler()
         self._data_on_process = None
@@ -20,16 +20,16 @@ class Predictor:
 
     def download_stock_closing_data(self, symbol) -> Optional[pd.Series]:
         """
-        Faz o download e preprocessa dados de uma ação
+        Downloads and preprocess the data of an action
 
         Args:
-            symbol: O simbolo da ação de acordo com o Yahoo finance para download.
+            symbol: The symbol of action according to Yahoo Finance for download.
 
         Returns:
-            Um Pandas Series preprocessado, contendo os valores de fechamento do último ao primeiro dados.
-            Caso ocorra um erro, retorna None
-
+            A preopcessed Pandas Series, containing the closing values ​​of the latter to the first data.
+            If an error occurs, returns none
         """
+
         try:
             cache = self._cache
             cache.insert_tmp({'symbol_on_process': symbol}, 3600)
@@ -40,7 +40,6 @@ class Predictor:
             
             close_prices = self._preprocess_data(data)
             cache.insert_tmp({f'{symbol}_close_prices': close_prices}, 3600)
-            # print('Dados baixados:', close_prices)
             return close_prices  
 
         except ValueError as ve:
@@ -53,14 +52,15 @@ class Predictor:
 
     def _preprocess_data(self, data: pd.Series) -> pd.Series:
         """
-        Faz o preprocessamentos dos dados obtidos por download, retornando apenas valores de fechamento da ação.
-
+        Preprocess the data obtained in the download.
+        
         Args:
-            data: Uma Serie pandas com todos os dados da ação
+            data: A Pandas Series with all data action data
 
         Returns:
-            Um Pandas Series preprocessado e normalizado, contendo datas como indices dos valores de fechameto.
+            A preprocessed Pandas Series with stock closing dates.
         """
+
         symbol_on_process = self._cache.get(keys='symbol_on_process')
         
         if 'Close' not in data.columns:
@@ -82,8 +82,8 @@ class Predictor:
 
         Returns:
             Uma tupla contendo três valores inteiros, são os parâmentros (p, q, d).
-        
         """
+
         pdq_key_in_cache = self._cache.get(f'pdq_{self.get_symbol_on_process()}')
         
         if not pdq_key_in_cache:
@@ -105,45 +105,47 @@ class Predictor:
 
     def autocreate_ARIMA_model(self, data: pd.Series) -> ARIMAResultsWrapper:
         """
-        Cria e configura automaticamente um modelo ARIMA com base nos dados forncecidos
+        Automatically creates and configures an ARIMA model based on the provided data.
 
         Args:
-            data: Um Pandas Series normalizado com index de datas e valores de fechamento.
+            data: A normalized Pandas Series with indexed dates and closing values.
 
         Returns:
-            Um modelo ARIMA configurado para os dados forncecidos.
+            An ARIMA model configured for the provided data.
         """
+
         pdq_order = self.autofit_ARIMA(data=data)
         self._arima_model = self.create_ARIMA_model(data=data, pdq_order=pdq_order)
         return self._arima_model
 
     def create_ARIMA_model(self, data: pd.Series, pdq_order: tuple[int, int, int]):
         """
-        Cria um modelo ARIMA com os parâmentros (p, q, d) setados manualmente.
+        Creates an ARIMA model with the parameters (p, q, d) set manually.
 
         Args:
-            data: Um Pandas Series normalizado com index de datas e valores de fechamento.
-            pqd_order: Uma tupla composta por três valores inteiros, que correspondem a (p, q, d).
+            data: A normalized Pandas Series with date index and closing values.
+            pqd_order: A tuple composed of three integer values, corresponding to (p, q, d).
 
         Returns:
-            Um modelo ARIMA configurado manualmente para os dados fornecidos.
-        """
-    
+            A manually configured ARIMA model for the given data.
+                """
+
         self._arima_model = ARIMA(data, order=pdq_order)
         self._arima_model = self._arima_model.fit()
         return self._arima_model
 
     def automake_forecast(self, data: pd.Series, years = 2) -> pd.Series:
         """
-        Realiza uma aprevisão automática criando e configurando um modelo ARIMA automaticamente.
+        Performs an automatic forecast by creating and configuring an ARIMA model automatically.
 
         Args:
-            data: Um Pandas Series normalizado com index de datas e valores de fechamento.
-            years(optional) default 2: Um número inteiro indicando a quantidade de anos no futuro.
-        
+            data: A normalized Pandas Series with indexed dates and closing values.
+            years(optional) default 2: An integer indicating the number of years in the future.
+
         Returns:
-            Um Pandas Series contendo todos os valores de fechamento previstos pelo modelo ARIMA
+            A Pandas Series containing all closing values ​​predicted by the ARIMA model
         """
+
         model = self.autocreate_ARIMA_model(data)  
         forecast_months = 12 * years  
         forecast = model.forecast(steps=forecast_months)  
@@ -153,15 +155,16 @@ class Predictor:
     
     def make_forecast(self, model: ARIMAResultsWrapper, years: int=2) -> pd.Series:
         """
-        Realiza uma previsão utilizando um modelo ARIMA preconfigurado.
+        Performs a forecast using a preconfigured ARIMA model.
 
         Args:
-            data: Um Pandas Series normalizado com index de datas e valores de fechamento.
-            years(optional) default 2: Um número inteiro indicando a quantidade de anos no futuro.
-        
+            data: A normalized Pandas Series with indexed dates and closing values.
+            years(optional) default 2: An integer indicating the number of years in the future.
+
         Returns:
-            Um Pandas Series contendo todos os valores de fechamento previstos pelo modelo ARIMA.
+            A Pandas Series containing all closing values ​​predicted by the ARIMA model.
         """
+
         forecast_months = 12 * years  
         forecast = model.forecast(steps=forecast_months)  
         print(f"\nPrevisões para os próximos {forecast_months} períodos:")
@@ -170,16 +173,17 @@ class Predictor:
 
     def make_performance_prediction(self, model: ARIMAResultsWrapper, data: pd.Series) -> pd.Series:
         """
-        Realiza uma predição para todas as datas dos indexes dos dados, retornando valores preditos pelo modelo.
-        Ajuda a avaliar a qualidade do modelo.
+        Performs a prediction for all index dates in the data, returning values ​​predicted by the model.
+        Helps to evaluate the quality of the model.
 
         Args:
-            model: Um modelo ARIMA preconfigurado aos dados que quer avaliar
-            data: Um Pandas Series normalizado com index de datas e valores de fechamento.
-        
+            model: An ARIMA model preconfigured for the data you want to evaluate
+            data: A normalized Pandas Series with index dates and closing values.
+
         Returns:
-            Retorna um Pandas Series contendo todos os valores de fechamento preditos pelo modelo, com indexes de datas reais.
+            Returns a Pandas Series containing all closing values ​​predicted by the model, with real date indexes.
         """
+
         prediction_steps = len(data)
         performance_prediction = model.predict(start=0, end=prediction_steps - 1)
         return performance_prediction
@@ -187,7 +191,7 @@ class Predictor:
     def clear_cache(self) -> None:
         return self._cache.clear()
     
-    ''' GETs: '''
+    # GETs:
     def get_symbol_on_process(self) -> str:
         return self._cache.get('symbol_on_process')
     

@@ -33,7 +33,7 @@ class TestWindow(unittest.TestCase):
     def test_get_symbol(self):
         entry = self.window.create_entry()
         entry.insert(0, 'AAPL')
-        self.assertEqual(self.window.get_symbol(), 'AAPL')
+        self.assertEqual(self.window.get_entry_data(), 'AAPL')
 
 
     def tearDown(self):

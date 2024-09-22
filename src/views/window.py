@@ -4,12 +4,21 @@ from typing import Callable
 class Window(tk.Tk):
     def __init__(self, title: str, geometry: str) -> None:
         super().__init__()
-        self.title(title)  # Define o título da janela
-        self.geometry(geometry)  # Define o tamanho da janela
-        self.configure(bg='#f0f0f0')  # Cor de fundo da janela
+        self.title(title)  # Define window title
+        self.geometry(geometry)  # Define window size
+        self.configure(bg='#f0f0f0')  # Background color
 
-    def create_label(self, text: str, font=('Arial', 12), app=None) -> tk.Label:
-        # 'Método para criar um label'
+    def create_label(self, text: str, font=('Arial', 12)) -> tk.Label:
+        """
+        Creates a label in the window
+
+        Args:
+            text: The text that will be contained in the label
+            font(optional): A tuple indicating the font of the characters
+        Returns: 
+            The label
+        """
+
         self.label = tk.Label(
             self,
             text=text,
@@ -22,22 +31,47 @@ class Window(tk.Tk):
         return self.label
     
     def create_entry(self, font=('Arial', 12)) -> tk.Entry:
-        # 'Método para criar um campo de entrada'
+        """
+        Creates an input field
+
+        Args:
+            font(optional): A tuple indicating the font of the input characters
+        
+        Returns:
+            The input field
+        """
+
         self.entry = tk.Entry(
             self, 
             font=font, 
             width=20, 
             justify='center',
             bd=2, 
-            relief='flat'  # Usando opções personalizáveis do `tk`
+            relief='flat'
         )
         self.entry.pack(pady=5, anchor='center')
 
         return self.entry
 
     def create_button(self, text: str, action: Callable[[], None], font=('Arial', 10),  relief='flat', bg='#45a049', fg='white', activebackground='#45a049', activeforeground='#ffffff') -> tk.Button:
-        # 'Método para criar um botão com uma ação'
-        self.forecast_button = tk.Button(
+        """
+        Creates an action button
+
+        Args:
+            text:
+            action:
+            font(optional): A tuple indicating the font of the characters
+            relief(optional): Widget relief type
+            bg(optional): Background color
+            fg(optional): Foreground color
+            activebackground(optional): Background when active
+            activeforegroun(optional): Foreground when active
+
+        Returns:
+            The button windget
+        """
+
+        self.button = tk.Button(
             self,
             text=text,
             command=action,
@@ -48,22 +82,28 @@ class Window(tk.Tk):
             activebackground=activebackground,
             activeforeground=activeforeground
         )
-        self.forecast_button.pack(pady=20, anchor='center')
+        self.button.pack(pady=20, anchor='center')
 
-        return self.forecast_button
+        return self.button
 
     def warning(self, title:str, text:str):
+        """
+        Creates a warning menssage
+
+        Args:
+            title: The title od menssage
+            text: The content of menssage
+
+        Retruns:
+            The warning window
+        """
         return tk.messagebox.showwarning(title, text)
     
-    def get_symbol(self) -> str:
-        # 'Retorna o texto inserido no campo de entrada'
+    def get_entry_data(self) -> str:
+        """
+        Get the entry data
+
+        Returns:
+            The entry data
+        """
         return self.entry.get()
-
-    def on_closing(self):
-        """Este método é chamado quando a janela principal é fechada."""
-        print("> Fechando a janela...")
-        if self.app:  # Se o controlador foi passado, chama on_close nele
-            self.app.on_close()  
-        self.destroy()
-        print("> Janela fechada!")
-
