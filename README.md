@@ -12,7 +12,7 @@ This project implements a **Stock Price Predictor** using the **ARIMA (AutoRegre
   
 ## Prerequisites
 
-To run this project, you will need Python 3.x and virtualenv for execute the following commands:
+To run this project, you will need Python 3.x and `virtualenv` for execute the following commands:
 
 ## Installation
 
