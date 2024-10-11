@@ -1,6 +1,5 @@
 from controllers.predictor_controller import PredictorController
 
-
 def main():
     app = PredictorController()
     window = app.create_main_window()
