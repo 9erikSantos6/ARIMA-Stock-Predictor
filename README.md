@@ -31,7 +31,7 @@ pip install -r requirements.txt
 ## To execute tests
 
 ```shell
-python -m unittest discover -v -s test
+python -m unittest discover -v -s tests
 
 ```
 
